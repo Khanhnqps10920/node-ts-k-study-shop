@@ -1,4 +1,4 @@
-import express, { Express } from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import http, { Server } from 'http';
 import cors from 'cors';
 import config from '../config/config';
@@ -22,7 +22,8 @@ export class App {
     this.middleware();
     this.connectController();
     // connect db
-    masterDbConn();
+    await masterDbConn();
+    console.log('Connected DB');
   }
 
   public async start(): Promise<void> {
@@ -47,5 +48,9 @@ export class App {
     this.app.use(cors());
     this.app.use(express.json({ limit: '5mb' }));
     this.app.use(express.urlencoded({ limit: '5mb', extended: false }));
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      console.log('IP:::', req.socket.remoteAddress, 'PATH::: ', req.path);
+      next();
+    });
   }
 }
